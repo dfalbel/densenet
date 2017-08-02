@@ -136,6 +136,65 @@ denseblock_altern <- function(x, nb_layers, nb_filter, growth_rate,
 }
 
 
+densenet <- function(nb_classes, img_dim, depth, nb_dense_block, growth_rate,
+                     nb_filter, dropout_rate = NULL, weight_decay = 1E-4) {
 
+  model_input <- keras::layer_input(shape = img_dim)
+  stopifnot((depth - 4) %% 3 == 0)
 
+  # layers in each dense block
+  nb_layers <- trunc((depth - 4) / 3)
 
+  # Initial convolution
+  x <- model_input %>%
+    keras::layer_conv_2d(
+      filters = nb_filter,
+      kernel_size = c(3,3),
+      strides = c(3,3),
+      kernel_initializer = "he_uniform",
+      padding = "same",
+      name = "initial_conv2D",
+      use_bias = FALSE,
+      kernel_regularizer = keras::regularizer_l2(weight_decay)
+    )
+
+  for (bloc_idx in 1:nb_dense_block) {
+
+    aux <- denseblock(
+      x, nb_layers, nb_filter, growth_rate,
+      dropout_rate = dropout_rate,
+      weight_decay = weight_decay
+    )
+
+    # add transition
+    x <- transition(
+      aux$x, aux$nb_filter,
+      dropout_rate = dropout_rate,
+      weight_decay=weight_decay
+    )
+
+  }
+
+  # The last denseblock does not have a transition
+  aux <- denseblock(
+    x, nb_layers, nb_filter, growth_rate,
+    dropout_rate = dropout_rate,
+    weight_decay = weight_decay
+  )
+
+  x <- aux$x %>%
+    keras::layer_batch_normalization(
+      mode = 0, axis = 1,
+      gamma_regularizer = keras::regularizer_l2(weight_decay),
+      beta_regularizer = keras::regularizer_l2(weight_decay)
+    ) %>%
+    keras::layer_activation(activation = "relu") %>%
+    keras::layer_global_average_pooling_2d() %>%
+    keras::layer_dense(
+      units = nb_classes, activation = "softmax",
+      kernel_regularizer = keras::regularizer_l2(weight_decay),
+      bias_regularizer = keras::regularizer_l2(weight_decay)
+    )
+
+  keras_model(model_input, x, name = "DenseNet")
+}
