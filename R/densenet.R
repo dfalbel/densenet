@@ -116,8 +116,16 @@ create_densenet <- function(nb_classes, img_input, include_top, depth = 40,
 
 }
 
+dense_block <- function(x, nb_layers, nb_filter, growth_rate,
+                        bottleneck = FALSE,
+                        dropout_rate = NULL,
+                        weight_decay = 1E-4,
+                        grow_nb_filters = TRUE,
+                        return_concat_list = FALSE){
 
 
+
+}
 
 
 
