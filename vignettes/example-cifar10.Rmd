@@ -1,0 +1,39 @@
+---
+title: "DenseNet for classifying images in cifar10 dataset"
+author: "Daniel Falbel"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+In this example we will train a DenseNet to classify images from the CIFAR10
+small images dataset.
+
+```{r}
+# Libraries ---------------------------------------------------------------
+library(keras)
+library(densenet)
+
+# Parameters --------------------------------------------------------------
+
+batch_size <- 32
+epochs <- 200
+data_augmentation <- TRUE
+
+# Data Preparation --------------------------------------------------------
+
+# see ?dataset_cifar10 for more info
+cifar10 <- dataset_cifar10()
+
+x_train <- cifar10$train$x/255
+x_test <- cifar10$test$x/255
+y_train <- to_categorical(cifar10$train$y, num_classes = 10)
+y_test <- to_categorical(cifar10$test$y, num_classes = 10)
+
+
+```
+
