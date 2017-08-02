@@ -12,9 +12,8 @@ conv_factory <- function(x,
                          dropout_rate = NULL,
                          weight_decay = 1E-4) {
 
-  x <- x %>%
+  a <- x %>%
     keras::layer_batch_normalization(
-      mode = 0,
       axis = 1,
       gamma_regularizer = keras::regularizer_l2(weight_decay),
       beta_regularizer = keras::regularizer_l2(weight_decay)
@@ -23,7 +22,6 @@ conv_factory <- function(x,
     keras::layer_conv_2d(
       filters = nb_filter,
       kernel_size = c(3,3),
-      strides = c(3,3),
       padding = "same",
       kernel_initializer = "he_uniform",
       use_bias = FALSE,
@@ -51,7 +49,6 @@ transition <- function(x, nb_filter, dropout_rate = NULL, weight_decay = 1e-4) {
 
   x <-  x %>%
     keras::layer_batch_normalization(
-      mode = 0,
       axis = 1,
       gamma_regularizer = keras::regularizer_l2(weight_decay),
       beta_regularizer = keras::regularizer_l2(weight_decay)
@@ -60,7 +57,6 @@ transition <- function(x, nb_filter, dropout_rate = NULL, weight_decay = 1e-4) {
     keras::layer_conv_2d(
       filters = nb_filter,
       kernel_size = c(1,1),
-      strides = c(1,1),
       padding = "same",
       kernel_initializer = "he_uniform",
       use_bias = FALSE,
@@ -82,13 +78,14 @@ transition <- function(x, nb_filter, dropout_rate = NULL, weight_decay = 1e-4) {
 #' Build a denseblock where the output of each conv_factory is fed to
 #' subsequent ones
 #'
-denseblock <- function(x, nb_layers, nb_filter, growth_rate) {
+denseblock <- function(x, nb_layers, nb_filter, growth_rate, dropout_rate,
+                       weight_decay) {
 
   list_feat <- list(x)
 
   if (keras::backend()$image_dim_ordering() == "th") {
-    concat_axis = 1
-  } else if (keras::backend()$image_dim_ordering == "tf"){
+    concat_axis <- 1
+  } else if (keras::backend()$image_dim_ordering() == "tf"){
     concat_axis <- -1
   }
 
@@ -96,7 +93,7 @@ denseblock <- function(x, nb_layers, nb_filter, growth_rate) {
 
     x <- conv_factory(x, growth_rate, dropout_rate, weight_decay)
     list_feat[[length(list_feat) + 1]] <- x
-    x <- keras::layer_concatenate(list_feat, concat_axis = concat_axis)
+    x <- keras::layer_concatenate(list_feat, axis = concat_axis)
     nb_filter <- nb_filter + growth_rate
 
   }
@@ -114,7 +111,7 @@ denseblock_altern <- function(x, nb_layers, nb_filter, growth_rate,
 
   if (keras::backend()$image_dim_ordering() == "th") {
     concat_axis = 1
-  } else if (keras::backend()$image_dim_ordering == "tf"){
+  } else if (keras::backend()$image_dim_ordering() == "tf"){
     concat_axis <- -1
   }
 
@@ -123,7 +120,7 @@ denseblock_altern <- function(x, nb_layers, nb_filter, growth_rate,
     merge_tensor <- conv_factory(x, growth_rate, dropout_rate, weight_decay)
     x <- keras::layer_concatenate(
       list(merge_tensor, x),
-      concat_axis = concat_axis
+      axis = concat_axis
     )
     nb_filter <- nb_filter + growth_rate
 
@@ -161,7 +158,6 @@ densenet <- function(nb_classes, img_dim, depth, nb_dense_block, growth_rate,
     keras::layer_conv_2d(
       filters = nb_filter,
       kernel_size = c(3,3),
-      strides = c(3,3),
       kernel_initializer = "he_uniform",
       padding = "same",
       name = "initial_conv2D",
@@ -195,7 +191,7 @@ densenet <- function(nb_classes, img_dim, depth, nb_dense_block, growth_rate,
 
   x <- aux$x %>%
     keras::layer_batch_normalization(
-      mode = 0, axis = 1,
+      axis = 1,
       gamma_regularizer = keras::regularizer_l2(weight_decay),
       beta_regularizer = keras::regularizer_l2(weight_decay)
     ) %>%
@@ -207,5 +203,5 @@ densenet <- function(nb_classes, img_dim, depth, nb_dense_block, growth_rate,
       bias_regularizer = keras::regularizer_l2(weight_decay)
     )
 
-  keras_model(model_input, x, name = "DenseNet")
+  keras_model(model_input, x)
 }
