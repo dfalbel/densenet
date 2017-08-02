@@ -109,4 +109,33 @@ denseblock <- function(x, nb_layers, nb_filter, growth_rate) {
 }
 
 
+denseblock_altern <- function(x, nb_layers, nb_filter, growth_rate,
+                              dropout_rate = NULL, weight_decay = 1E-4) {
+
+  if (keras::backend()$image_dim_ordering() == "th") {
+    concat_axis = 1
+  } else if (keras::backend()$image_dim_ordering == "tf"){
+    concat_axis <- -1
+  }
+
+  for (i in 1:nb_layers) {
+
+    merge_tensor <- conv_factory(x, growth_rate, dropout_rate, weight_decay)
+    x <- keras::layer_concatenate(
+      list(merge_tensor, x),
+      concat_axis = concat_axis
+    )
+    nb_filter <- nb_filter + growth_rate
+
+  }
+
+  list(
+    x = x,
+    nb_filter = nb_filter
+  )
+}
+
+
+
+
 
