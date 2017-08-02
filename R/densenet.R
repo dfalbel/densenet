@@ -135,7 +135,18 @@ denseblock_altern <- function(x, nb_layers, nb_filter, growth_rate,
   )
 }
 
-
+#' Build the DenseNet model
+#'
+#' @param nb_classes numeric -- number of classes
+#' @param img_dim list -- (channels, rows, colums)
+#' @param depth numeric -- how many layers
+#' @param nb_dense_block numeric -- number of dense blocks to add to end
+#' @param growth_rate numeric -- number of filters to add
+#' @param nb_filter numeric -- number of filters
+#' @param dropout_rate numeric -- dropout rate
+#' @param weight_decay numeric -- weight decay
+#'
+#' @export
 densenet <- function(nb_classes, img_dim, depth, nb_dense_block, growth_rate,
                      nb_filter, dropout_rate = NULL, weight_decay = 1E-4) {
 
