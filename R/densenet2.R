@@ -134,7 +134,33 @@ transition_block <- function(ip, nb_filter,
 #' @param weight_decay: weight decay factor
 #' @param grow_nb_filters: flag to decide to allow number of filters to grow
 #' @param return_concat_list: return the list of feature maps along with the actual output
-dense_block <- function() {
+dense_block <- function(x, nb_layers, nb_filter, growth_rate,
+                        bottleneck = FALSE,
+                        dropout_rate = NULL,
+                        weight_decay = 1e-4,
+                        grow_nb_filters = TRUE,
+                        return_concat_list = FALSE) {
 
+  x_list <- list(x)
+
+  for (i in 1:nb_layers) {
+
+    cb <- conv_block(x, growth_rate, bottleneck, dropout_rate, weight_decay)
+    x_list[[i+1]] <- cb
+
+    x <- layer_concatenate(list(x, cb), axis = concat_axis)
+
+    if (grow_nb_filters) {
+      nb_filter <- nb_filter + growth_rate
+    }
+
+  }
+
+
+  if (return_concat_list) {
+    return(list(x = x, nb_filter = nb_filter, x_list = x_list))
+  } else {
+    return(list(x = x, nb_filter = nb_filter))
+  }
 }
 
