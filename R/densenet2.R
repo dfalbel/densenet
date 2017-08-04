@@ -1,3 +1,120 @@
+#' Instantiate the DenseNet architecture, optionally loading weights pre-trained
+#' on CIFAR-10. Note that when using TensorFlow,
+#' for best performance you should set
+#' `image_data_format='channels_last'` in your Keras config
+#' at ~/.keras/keras.json.
+#' The model and the weights are compatible with both
+#' TensorFlow and Theano. The dimension ordering
+#' convention used by the model is the one
+#' specified in your Keras config file.
+#' @param input_shape: optional shape tuple, only to be specified
+#' if `include_top` is False (otherwise the input shape
+#' has to be `(32, 32, 3)` (with `channels_last` dim ordering)
+#' or `(3, 32, 32)` (with `channels_first` dim ordering).
+#' It should have exactly 3 inputs channels,
+#' and width and height should be no smaller than 8.
+#' E.g. `(200, 200, 3)` would be one valid value.
+#' depth: number or layers in the DenseNet
+#' @param nb_dense_block: number of dense blocks to add to end (generally = 3)
+#' @param growth_rate: number of filters to add per dense block
+#' @param nb_filter: initial number of filters. -1 indicates initial
+#' number of filters is 2 * growth_rate
+#' @param nb_layers_per_block: number of layers in each dense block.
+#' Can be a -1, positive integer or a list.
+#' If -1, calculates nb_layer_per_block from the network depth.
+#' If positive integer, a set number of layers per dense block.
+#' If list, nb_layer is used as provided. Note that list size must
+#' be (nb_dense_block + 1)
+#' @param bottleneck: flag to add bottleneck blocks in between dense blocks
+#' @param reduction: reduction factor of transition blocks.
+#' Note : reduction value is inverted to compute compression.
+#' @param dropout_rate: dropout rate
+#' @param weight_decay: weight decay factor
+#' @param include_top: whether to include the fully-connected
+#' layer at the top of the network.
+#' @param weights: one of `None` (random initialization) or
+#' cifar10' (pre-training on CIFAR-10)..
+#' @param input_tensor: optional Keras tensor (i.e. output of `layers.Input()`)
+#' to use as image input for the model.
+#' @param classes: optional number of classes to classify images
+#' into, only to be specified if `include_top` is True, and
+#' if no `weights` argument is specified.
+#' @param activation: Type of activation at the top layer. Can be one of 'softmax' or 'sigmoid'.
+#' Note that if sigmoid is used, classes must be 1.
+#'
+#' @export
+application_densenet(input_shape = NULL, depth = 40, nb_dense_block = 3,
+                     growth_rate = 12, nb_filter = 16, nb_layers_per_block = -1,
+                     bottleneck = FALSE, reduction = 0.0, dropout_rate = 0.0,
+                     weight_decay = 1e-4, include_top = TRUE, weights = "cifar10",
+                     input_tensor = NULL, classes = 10, activation = "softmax"){
+
+
+  # Determine proper input shape
+  input_shape <- obtain_input_shape()(
+    input_shape, default_size = 32, min_size = 8,
+    data_format = keras::backend()$image_data_format(),
+    include_top = include_top
+  )
+
+  if (is.null(input_tensor)) {
+
+    img_input <- keras::layer_input(shape = input_shape)
+
+  } else {
+
+    if (!keras::backend()$is_keras_tensor(input_tensor)) {
+
+      img_input <- keras::layer_input(tensor = input_tensor,
+                                      shape = input_shape)
+
+    } else {
+
+      img_input <- input_tensor
+
+    }
+
+  }
+
+  x <- create_dense_net(
+    classes,
+    img_input,
+    include_top,
+    depth,
+    nb_dense_block,
+    growth_rate,
+    nb_filter,
+    nb_layers_per_block,
+    bottleneck,
+    reduction,
+    dropout_rate,
+    weight_decay,
+    activation
+  )
+
+  # Ensure that the model takes into account
+  # any potential predecessors of `input_tensor`.
+  if (!is.null(input_tensor)) {
+
+    inputs <- get_source_inputs()(input_tensor)
+
+  } else {
+
+    inputs <- img_input
+
+  }
+
+  model <- keras::keras_model(inputs, x)
+
+
+  if (weights == "cifar10") {
+    stop("weigths not yet implemented")
+  }
+
+  model
+}
+
+
 #' Apply BatchNorm, Relu, 3x3 Conv2D, optional bottleneck block and dropout
 #' @param ip: Input keras tensor
 #' @param nb_filter: number of filters
