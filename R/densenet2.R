@@ -43,11 +43,14 @@
 #' Note that if sigmoid is used, classes must be 1.
 #'
 #' @export
-application_densenet(input_shape = NULL, depth = 40, nb_dense_block = 3,
-                     growth_rate = 12, nb_filter = 16, nb_layers_per_block = -1,
-                     bottleneck = FALSE, reduction = 0.0, dropout_rate = 0.0,
-                     weight_decay = 1e-4, include_top = TRUE, weights = "cifar10",
-                     input_tensor = NULL, classes = 10, activation = "softmax"){
+application_densenet <- function(input_shape = NULL, depth = 40,
+                                 nb_dense_block = 3, growth_rate = 12,
+                                 nb_filter = 16, nb_layers_per_block = -1,
+                                 bottleneck = FALSE, reduction = 0.0,
+                                 dropout_rate = 0.0, weight_decay = 1e-4,
+                                 include_top = TRUE, weights = "cifar10",
+                                 input_tensor = NULL, classes = 10,
+                                 activation = "softmax"){
 
 
   # Determine proper input shape
@@ -294,7 +297,7 @@ transition_up_block <- function(ip, nb_filters, type = "upsampling", weight_deca
 
     x <- keras::layer_upsampling_2d(ip)
 
-  } else if (type = "subpixel") {
+  } else if (type == "subpixel") {
 
     stop("subpixel not implemented")
 

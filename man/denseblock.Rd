@@ -5,7 +5,7 @@
 \title{Build a denseblock where the output of each conv_factory is fed to
 subsequent ones}
 \usage{
-denseblock(x, nb_layers, nb_filter, growth_rate)
+denseblock(x, nb_layers, nb_filter, growth_rate, dropout_rate, weight_decay)
 }
 \description{
 Build a denseblock where the output of each conv_factory is fed to
