@@ -39,7 +39,8 @@
 #' @param classes: optional number of classes to classify images
 #' into, only to be specified if `include_top` is True, and
 #' if no `weights` argument is specified.
-#' @param activation: Type of activation at the top layer. Can be one of 'softmax' or 'sigmoid'.
+#' @param activation: Type of activation at the top layer. Can be one of
+#' 'softmax' or 'sigmoid'.
 #' Note that if sigmoid is used, classes must be 1.
 #'
 #' @export
@@ -48,7 +49,7 @@ application_densenet <- function(input_shape = NULL, depth = 40,
                                  nb_filter = 16, nb_layers_per_block = -1,
                                  bottleneck = FALSE, reduction = 0.0,
                                  dropout_rate = 0.0, weight_decay = 1e-4,
-                                 include_top = TRUE, weights = "cifar10",
+                                 include_top = TRUE, weights = NULL,
                                  input_tensor = NULL, classes = 10,
                                  activation = "softmax"){
 
@@ -110,9 +111,12 @@ application_densenet <- function(input_shape = NULL, depth = 40,
   model <- keras::keras_model(inputs, x)
 
 
-  if (weights == "cifar10") {
-    stop("weigths not yet implemented")
+  if(!is.null(weights)){
+    if (weights == "cifar10") {
+      stop("weigths not yet implemented")
+    }
   }
+
 
   model
 }
@@ -178,6 +182,7 @@ conv_block <- function(ip, nb_filter,
   }
 
   x <- keras::layer_conv_2d(
+    nb_filter,
     object = x,
     kernel_size = c(3,3),
     kernel_initializer = "he_uniform",
@@ -193,7 +198,8 @@ conv_block <- function(ip, nb_filter,
 }
 
 
-#' Apply BatchNorm, Relu 1x1, Conv2D, optional compression, dropout and Maxpooling2D
+#' Apply BatchNorm, Relu 1x1, Conv2D, optional compression, dropout and
+#' Maxpooling2D
 #'
 #' @param ip: Input keras tensor
 #' @param nb_filter: number of filters
@@ -253,13 +259,20 @@ transition_block <- function(ip, nb_filter,
 #' @param dropout_rate: dropout rate
 #' @param weight_decay: weight decay factor
 #' @param grow_nb_filters: flag to decide to allow number of filters to grow
-#' @param return_concat_list: return the list of feature maps along with the actual output
+#' @param return_concat_list: return the list of feature maps along with the
+#' actual output
 dense_block <- function(x, nb_layers, nb_filter, growth_rate,
                         bottleneck = FALSE,
                         dropout_rate = NULL,
                         weight_decay = 1e-4,
                         grow_nb_filters = TRUE,
                         return_concat_list = FALSE) {
+
+  if (keras::backend()$image_data_format() == "channels_first") {
+    concat_axis <- 1
+  } else {
+    concat_axis <- -1
+  }
 
   x_list <- list(x)
 
@@ -288,10 +301,12 @@ dense_block <- function(x, nb_layers, nb_filter, growth_rate,
 #'
 #' @param ip: keras tensor
 #' @param nb_filters: number of layers
-#' @param type: can be 'upsampling', 'subpixel', 'deconv'. Determines type of upsampling performed
+#' @param type: can be 'upsampling', 'subpixel', 'deconv'. Determines type of
+#' upsampling performed
 #' @param weight_decay: weight decay factor
 #'
-transition_up_block <- function(ip, nb_filters, type = "upsampling", weight_decay = 1e-4) {
+transition_up_block <- function(ip, nb_filters, type = "upsampling",
+                                weight_decay = 1e-4) {
 
   if (type == "upsampling") {
 
@@ -311,7 +326,7 @@ transition_up_block <- function(ip, nb_filters, type = "upsampling", weight_deca
       padding = "same",
       kernel_regularizer = keras::regularizer_l2(weight_decay),
       kernel_initializer = "he_uniform"
-      )
+    )
 
   }
 
@@ -322,11 +337,13 @@ transition_up_block <- function(ip, nb_filters, type = "upsampling", weight_deca
 #'
 #'
 #' @param nb_classes: number of classes
-#' @param img_input: tuple of shape (channels, rows, columns) or (rows, columns, channels)
+#' @param img_input: tuple of shape (channels, rows, columns) or (rows, columns,
+#'  channels)
 #' @param include_top: flag to include the final Dense layer
 #' @param nb_dense_block: number of dense blocks to add to end (generally = 3)
 #' @param growth_rate: number of filters to add per dense block
-#' @param reduction: reduction factor of transition blocks. Note : reduction value is inverted to compute compression
+#' @param reduction: reduction factor of transition blocks. Note : reduction
+#' value is inverted to compute compression
 #' @param dropout_rate: dropout rate
 #' @param weight_decay: weight decay
 #' @param nb_layers_per_block: number of layers in each dense block.
@@ -334,15 +351,19 @@ transition_up_block <- function(ip, nb_filters, type = "upsampling", weight_deca
 #'            If positive integer, a set number of layers per dense block.
 #'            If list, nb_layer is used as provided. Note that list size must
 #'            be (nb_dense_block + 1)
-#' @param nb_upsampling_conv: number of convolutional layers in upsampling via subpixel convolution
-#' @param upsampling_type: Can be one of 'upsampling', 'deconv' and 'subpixel'. Defines
-#'            type of upsampling algorithm used.
-#' @param input_shape: Only used for shape inference in fully convolutional networks.
-#' @param activation: Type of activation at the top layer. Can be one of 'softmax' or 'sigmoid'.
-#'                    Note that if sigmoid is used, classes must be 1.
+#' @param nb_upsampling_conv: number of convolutional layers in upsampling via
+#' subpixel convolution
+#' @param upsampling_type: Can be one of 'upsampling', 'deconv' and 'subpixel'.
+#'  Defines type of upsampling algorithm used.
+#' @param input_shape: Only used for shape inference in fully convolutional
+#' networks.
+#' @param activation: Type of activation at the top layer. Can be one of
+#' 'softmax' or 'sigmoid'. Note that if sigmoid is used, classes must be 1.
 create_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
-                             nb_dense_block = 3, growth_rate = 12, nb_filter = -1,
-                             nb_layers_per_block = -1, bottleneck = FALSE, reduction=0.0,
+                             nb_dense_block = 3, growth_rate = 12,
+                             nb_filter = -1,
+                             nb_layers_per_block = -1, bottleneck = FALSE,
+                             reduction=0.0,
                              dropout_rate = NULL, weight_decay=1e-4,
                              activation = "softmax"){
 
@@ -368,7 +389,7 @@ create_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
 
   } else {
 
-    if (nb_layers_per_block == 1) {
+    if (nb_layers_per_block == -1) {
 
       count <- trunc((depth - 4) / 3)
       nb_layers <- rep(count, nb_dense_block)
@@ -421,7 +442,7 @@ create_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
   }
 
   # The last dense_block does not have a transition_block
-  aux <- dense_block(x, final_nb_layer, nb_filter, groth_rate,
+  aux <- dense_block(x, final_nb_layer, nb_filter, growth_rate,
                      bottleneck = bottleneck, dropout_rate = dropout_rate,
                      weight_decay = weight_decay)
 
@@ -452,11 +473,13 @@ create_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
 
 #' Build the DenseNet model
 #' @param nb_classes: number of classes
-#' @param img_input: tuple of shape (channels, rows, columns) or (rows, columns, channels)
+#' @param img_input: tuple of shape (channels, rows, columns) or
+#' (rows, columns, channels)
 #' @param include_top: flag to include the final Dense layer
 #' @param nb_dense_block: number of dense blocks to add to end (generally = 3)
 #' @param growth_rate: number of filters to add per dense block
-#' @param reduction: reduction factor of transition blocks. Note : reduction value is inverted to compute compression
+#' @param reduction: reduction factor of transition blocks. Note :
+#' reduction value is inverted to compute compression
 #' @param dropout_rate: dropout rate
 #' @param weight_decay: weight decay
 #' @param nb_layers_per_block: number of layers in each dense block.
@@ -464,17 +487,25 @@ create_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
 #'        If positive integer, a set number of layers per dense block.
 #'        If list, nb_layer is used as provided. Note that list size must
 #'        be (nb_dense_block + 1)
-#' @param nb_upsampling_conv: number of convolutional layers in upsampling via subpixel convolution
-#' @param upsampling_type: Can be one of 'upsampling', 'deconv' and 'subpixel'. Defines
+#' @param nb_upsampling_conv: number of convolutional layers in upsampling
+#' via subpixel convolution
+#' @param upsampling_type: Can be one of 'upsampling', 'deconv' and 'subpixel'.
+#' Defines
 #'        type of upsampling algorithm used.
-#' @param input_shape: Only used for shape inference in fully convolutional networks.
-#' @param activation: Type of activation at the top layer. Can be one of 'softmax' or 'sigmoid'.
+#' @param input_shape: Only used for shape inference in fully convolutional
+#' networks.
+#' @param activation: Type of activation at the top layer. Can be one of
+#' 'softmax' or 'sigmoid'.
 #'        Note that if sigmoid is used, classes must be 1.
 #'
-create_fcn_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
-                             nb_dense_block = 3, growth_rate = 12, nb_filter = -1,
-                             nb_layers_per_block = -1, bottleneck = FALSE, reduction=0.0,
-                             dropout_rate = NULL, weight_decay = 1e-4, activation = "softmax"){
+create_fcn_dense_net <- function(nb_classes, img_input, include_top,
+                                 depth = 40,
+                                 nb_dense_block = 3, growth_rate = 12,
+                                 nb_filter = -1,
+                                 nb_layers_per_block = -1, bottleneck = FALSE,
+                                 reduction=0.0,
+                                 dropout_rate = NULL, weight_decay = 1e-4,
+                                 activation = "softmax"){
 
 
   if (keras::backend()$image_data_format() == "channels_first"){
@@ -493,7 +524,8 @@ create_fcn_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
 
 
   # check if upsampling_conv has minimum number of filters
-  # minimum is set to 12, as at least 3 color channels are needed for correct upsampling
+  # minimum is set to 12, as at least 3 color channels are needed for correct
+  # upsampling
   stopifnot(nb_upsampling_conv > 12, nb_upsampling_conv %% 4 == 0)
 
   if (length(nb_layers_per_block) > 1) {
@@ -551,7 +583,7 @@ create_fcn_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
       compression = compression,
       dropout_rate = dropout_rate,
       weight_decay = weight_decay
-      )
+    )
 
     # this is calculated inside transition_down_block
     nb_filter <- trunc(aux$nb_filter * compression)
@@ -580,10 +612,12 @@ create_fcn_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
     # upsampling block must upsample only the feature maps (concat_list[1:]),
     # not the concatenation of the input with the feature maps (concat_list[0].
     l <- keras::layer_concatenate(skip_list[-1], axis = concat_axis)
-    t <- transition_up_block(l, nb_filters = nb_filters_keep, type = upsampling_type)
+    t <- transition_up_block(l, nb_filters = nb_filters_keep,
+                             type = upsampling_type)
 
     # concatenate the skip connection with the transition block
-    x <- keras::layer_concatenate(list(t, skip_list[[bloc_idx]]), axis = concat_axis)
+    x <- keras::layer_concatenate(list(t, skip_list[[bloc_idx]]),
+                                  axis = concat_axis)
 
     # Dont allow the feature map size to grow in upsampling dense blocks
     aux <- dense_block(

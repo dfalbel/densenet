@@ -49,6 +49,8 @@ input_shape <- dim(x_train)[-1]
 
 # Model Definition -------------------------------------------------------
 
+model <- application_densenet(c(28, 28, 3), include_top = FALSE, weights = NULL)
+
 model <- densenet(
   nb_classes = 10, 
   img_dim = input_shape, 
