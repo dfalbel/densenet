@@ -227,8 +227,106 @@ create_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
                              activation = "softmax"){
 
 
+  if (keras::backend()$image_data_format() == "channels_first") {
+    concat_axis <- 1
+  } else {
+    concat_axis <- -1
+  }
+
+  stopifnot((depth - 4) %% 3 == 0)
+
+  if (reduction != 0) {
+    stopifnot(reduction <= 1.0, reduction > 0.0)
+  }
+
+  # layers in each dense block
+  if (length(nb_layers_per_block) > 1) {
+    stopifnot(length(nb_layers_per_block) == (nb_dense_block + 1))
+
+    final_nb_layer <- nb_layers_per_block[length(nb_layers_per_block)]
+    nb_layers <- nb_layers_per_block[-length(nb_layers_per_block)]
+
+  } else {
+
+    if (nb_layers_per_block == 1) {
+
+      count <- trunc((depth - 4) / 3)
+      nb_layers <- rep(count, nb_dense_block)
+      final_nb_layer <- count
+
+    } else {
+
+      final_nb_layer <- nb_layers_per_block
+      nb_layers <- rep(nb_layers_per_block, nb_dense_block)
+
+    }
+
+  }
+
+  if (bottleneck) {
+    nb_layers <- trunc(nb_layers/2)
+  }
+
+  # compute initial nb_filter if -1, else accept users initial nb_filter
+  if (nb_filter <= 0) {
+    nb_filter <- 2*growth_rate
+  }
+
+  # compute compression factor
+  compression <- 1.0 - reduction
+
+  # Initial convolution
+  x <- keras::layer_conv_2d(
+    img_input,
+    nb_filter,
+    kernel_size = c(3,3),
+    kernel_initializer = "he_uniform", padding = "same",
+    name = "initial_conv2D", use_bias = FALSE,
+    kernel_regularizer = keras::regularizer_l2(weight_decay)
+  )
+
+  for (bloc_idx in 1:nb_dense_block) {
+
+    aux <- dense_block(x,nb_layers[bloc_idx], nb_filter, growth_rate,
+                       bottleneck = bottleneck, dropout_rate = dropout_rate,
+                       weight_decay = weight_decay)
+
+    x <- transition_block(aux$x, aux$nb_filter, compression = compression,
+                          dropout_rate = dropout_rate,
+                          weight_decay = weight_decay)
 
 
+    nb_filter <- trunc(nb_filter * compression)
+
+  }
+
+  # The last dense_block does not have a transition_block
+  aux <- dense_block(x, final_nb_layer, nb_filter, groth_rate,
+                     bottleneck = bottleneck, dropout_rate = dropout_rate,
+                     weight_decay = weight_decay)
+
+  x <- keras::layer_batch_normalization(
+    aux$x, axis = concat_axis,
+    gamma_regularizer = keras::regularizer_l2(weight_decay),
+    beta_regularizer = keras::regularizer_l2(weight_decay)
+  ) %>%
+    keras::layer_activation(activation = "relu") %>%
+    keras::layer_global_average_pooling_2d()
+
+
+  if (include_top) {
+
+    x <- keras::layer_dense(
+      x,
+      units = nb_classes,
+      activation = activation,
+      kernel_regularizer = keras::regularizer_l2(weight_decay),
+      bias_regularizer = keras::regularizer_l2(weight_decay)
+    )
+
+  }
+
+  x
 }
 
 
