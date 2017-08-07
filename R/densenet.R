@@ -187,6 +187,7 @@ conv_block <- function(ip, nb_filter,
     kernel_size = c(3,3),
     kernel_initializer = "he_uniform",
     padding = "same",
+    use_bias = FALSE,
     kernel_regularizer = keras::regularizer_l2(weight_decay)
   )
 
@@ -426,7 +427,7 @@ create_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
     kernel_regularizer = keras::regularizer_l2(weight_decay)
   )
 
-  for (bloc_idx in 1:nb_dense_block) {
+  for (bloc_idx in 1:(nb_dense_block - 1)) {
 
     aux <- dense_block(x,nb_layers[bloc_idx], nb_filter, growth_rate,
                        bottleneck = bottleneck, dropout_rate = dropout_rate,
@@ -561,7 +562,7 @@ create_fcn_dense_net <- function(nb_classes, img_input, include_top,
   skip_list <- list()
 
 
-  for (bloc_idx in 1:nb_dense_block) {
+  for (bloc_idx in 1:(nb_dense_block - 1)) {
 
     # Add dense blocks and transition down block
     aux <- dense_block(
