@@ -5,8 +5,10 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -20,8 +22,8 @@ library(densenet)
 
 # Parameters --------------------------------------------------------------
 
-batch_size <- 128
-epochs <- 200
+batch_size <- 16
+epochs <- 300
 
 # Data Preparation --------------------------------------------------------
 
@@ -30,8 +32,11 @@ cifar10 <- dataset_cifar10()
 
 # Normalisation
 for(i in 1:3){
-  cifar10$train$x[,,,i] <- (cifar10$train$x[,,,i] - mean(cifar10$train$x[,,,i])) / sd(cifar10$train$x[,,,i])
-  cifar10$test$x[,,,i] <- (cifar10$test$x[,,,i] - mean(cifar10$train$x[,,,i])) / sd(cifar10$train$x[,,,i])
+  mea <- mean(cifar10$train$x[,,,i])
+  sds <- sd(cifar10$train$x[,,,i])
+  
+  cifar10$train$x[,,,i] <- (cifar10$train$x[,,,i] - mea) / sds
+  cifar10$test$x[,,,i] <- (cifar10$test$x[,,,i] - mea) / sds
 }
 x_train <- cifar10$train$x
 x_test <- cifar10$test$x
@@ -39,38 +44,12 @@ x_test <- cifar10$test$x
 y_train <- to_categorical(cifar10$train$y, num_classes = 10)
 y_test <- to_categorical(cifar10$test$y, num_classes = 10)
 
-# Create image generator --------------------------------------------------
-
-datagen <- image_data_generator(
-    featurewise_center = TRUE,
-    featurewise_std_normalization = TRUE,
-    rotation_range = 20,
-    width_shift_range = 0.2,
-    height_shift_range = 0.2,
-    horizontal_flip = TRUE
-  )
-
-datagen %>% fit_image_data_generator(x_train)
-
 # Model Definition -------------------------------------------------------
 
-model <- densenet(
-  nb_classes = 10, 
-  img_dim = c(32, 32, 3), 
-  depth = 22, 
-  nb_dense_block = 3, 
-  growth_rate = 12,
-  nb_filter = 16,
-  dropout_rate = 0.2, 
-  weight_decay = 1E-4
-)
+input_img <- layer_input(shape = c(32, 32, 3))
+model <- application_densenet(include_top = TRUE, input_tensor = input_img, dropout_rate = 0.2, )
 
-opt <- optimizer_adam(
-  lr = 1e-3, 
-  beta_1 = 0.9, 
-  beta_2 = 0.999, 
-  epsilon = 1e-08
-)
+opt <- optimizer_sgd(lr = 0.1, momentum = 0.9, nesterov = TRUE)
 
 model %>% compile(
   optimizer = opt,
@@ -80,19 +59,38 @@ model %>% compile(
 
 # Model fitting -----------------------------------------------------------
 
-model %>% fit_generator(
-  flow_images_from_data(x_train, y_train, datagen, batch_size = batch_size),
-  steps_per_epoch = as.integer(50000/batch_size), 
-  epochs = epochs, 
-  validation_data = list(x_test, y_test)
-)
+# callbacks for weights and learning rate
+lr_schedule <- function(epoch) {
+  
+  if(epoch <= 150) {
+    return(0.1)
+  } else if(epoch > 150 & epoch <= 225){
+    return(0.01)
+  } else {
+    return(0.001)
+  }
+  
+}
+
+lr_reducer <- callback_learning_rate_scheduler(lr_schedule)
+model_checkpoint <- callback_model_checkpoint("inst/weights/cifar10.hdf5", monitor = "val_acc")
 
 model %>% fit(
-  x_train, y_train, batch_size = 32, epochs = 200, validation_data = list(x_test, y_test), callbacks = list(
-    callback_model_checkpoint("cifar-model.hdf5")
+  x_train, y_train, 
+  batch_size = 64, 
+  epochs = 300, 
+  validation_data = list(x_test, y_test), 
+  callbacks = list(
+    lr_reducer,
+    model_checkpoint
   )
 )
-
-
 ```
+
+
+```{r}
+model <- load_model_hdf5("inst/weights/cifar10.hdf5")
+evaluate(model, x_test, y_test)
+```
+
 
