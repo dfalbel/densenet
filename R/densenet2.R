@@ -182,8 +182,8 @@ conv_block <- function(ip, nb_filter,
   }
 
   x <- keras::layer_conv_2d(
-    nb_filter,
     object = x,
+    filters = nb_filter,
     kernel_size = c(3,3),
     kernel_initializer = "he_uniform",
     padding = "same",
@@ -322,9 +322,9 @@ transition_up_block <- function(ip, nb_filters, type = "upsampling",
       ip,
       filters = nb_filters,
       kernel_size = c(3,3) ,
+      strides = c(2,2),
       activation = "relu",
       padding = "same",
-      kernel_regularizer = keras::regularizer_l2(weight_decay),
       kernel_initializer = "he_uniform"
     )
 
@@ -437,7 +437,7 @@ create_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
                           weight_decay = weight_decay)
 
 
-    nb_filter <- trunc(nb_filter * compression)
+    nb_filter <- trunc(aux$nb_filter * compression)
 
   }
 
