@@ -1,12 +1,14 @@
 Package: densenet
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Densely Connected Convolutional Networks in Keras
+Version: 0.0.1.9000
+Authors@R: c(
+  person("Daniel", "Falbel", "dfalbel@gmail.com", role = "cre"),
+  person("Somshubra", "Majumdar", "titu1994@gmail.com", role = "aut", 
+  comment = "Original Python Implementation https://github.com/titu1994/DenseNet"))
+Description: Provides Densely Connected Convolutional Networks implementations
+  to be used for prediction, feature extraction and fine-tuning.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: keras
