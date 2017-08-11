@@ -91,7 +91,7 @@ plot(history)
 
 
 ```{r}
-model <- load_model_hdf5("inst/weights/cifar10.hdf5")
+model <- load_model_hdf5("inst/weights/cifar10-DenseNet-40-12.hdf5")
 evaluate(model, x_test, y_test)
 ```
 
