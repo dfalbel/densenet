@@ -4,7 +4,7 @@
 usning [`keras`](https://github.com/rstudio/keras). This implementation is based on Somshubra python/keras implementation
 available [here](https://github.com/titu1994/DenseNet).
 
-![]("schema.jpg")
+![](https://cloud.githubusercontent.com/assets/8370623/17981496/fa648b32-6ad1-11e6-9625-02fdd72fdcd3.jpg)
 
 ## Installation
 
