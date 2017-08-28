@@ -4,6 +4,8 @@
 usning [`keras`](https://github.com/rstudio/keras). This implementation is based on Somshubra python/keras implementation
 available [here](https://github.com/titu1994/DenseNet).
 
+![]("schema.jpg")
+
 ## Installation
 
 You can install densenet from github with:
