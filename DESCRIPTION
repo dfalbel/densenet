@@ -3,8 +3,8 @@ Type: Package
 Title: Densely Connected Convolutional Networks in Keras
 Version: 0.0.1.9000
 Authors@R: c(
-  person("Daniel", "Falbel", "dfalbel@gmail.com", role = "cre"),
-  person("Somshubra", "Majumdar", "titu1994@gmail.com", role = "aut", 
+  person("Daniel", "Falbel", email = "dfalbel@gmail.com", role = c("cre", "aut")),
+  person("Somshubra", "Majumdar", email = "titu1994@gmail.com", role = "aut", 
   comment = "Original Python Implementation https://github.com/titu1994/DenseNet"))
 Description: Provides Densely Connected Convolutional Networks implementations
   to be used for prediction, feature extraction and fine-tuning.
