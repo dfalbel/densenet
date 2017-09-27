@@ -1,5 +1,7 @@
 # densenet
 
+[![Travis-CI Build Status](https://travis-ci.org/dfalbel/densenet.svg?branch=master)](https://travis-ci.org/dfalbel/densenet)
+
 `densenet` implements the [*Densely Connected Convolutional Networks*](https://arxiv.org/abs/1608.06993) for R
 usning [`keras`](https://github.com/rstudio/keras). This implementation is based on Somshubra python/keras implementation
 available [here](https://github.com/titu1994/DenseNet).
