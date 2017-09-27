@@ -16,7 +16,7 @@ small images dataset. Because of GPU memmory limitations we had to use a batch s
 instead of 64 from the original paper. This takes ~660s per epoch on a NVIDIA GEFORCE 1080 Ti
 Final accuracy on test set was 0.9410 versus 0.9433 reported on the paper.
 
-```{r}
+```{r, eval = FALSE}
 # Libraries ---------------------------------------------------------------
 library(keras)
 library(densenet)
@@ -89,11 +89,7 @@ history <- model %>% fit(
 )
 
 plot(history)
-```
 
-
-```{r}
-model <- load_model_hdf5("inst/weights/cifar10-DenseNet-100-12.hdf5")
 evaluate(model, x_test, y_test)
 ```
 

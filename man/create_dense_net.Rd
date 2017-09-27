@@ -10,42 +10,45 @@ create_dense_net(nb_classes, img_input, include_top, depth = 40,
   dropout_rate = NULL, weight_decay = 1e-04, activation = "softmax")
 }
 \arguments{
-\item{nb_classes:}{number of classes}
+\item{nb_classes}{number of classes}
 
-\item{img_input:}{tuple of shape (channels, rows, columns) or (rows, columns,
+\item{img_input}{tuple of shape (channels, rows, columns) or (rows, columns,
 channels)}
 
-\item{include_top:}{flag to include the final Dense layer}
+\item{include_top}{flag to include the final Dense layer}
 
-\item{nb_dense_block:}{number of dense blocks to add to end (generally = 3)}
+\item{depth}{total number of layers}
 
-\item{growth_rate:}{number of filters to add per dense block}
+\item{nb_dense_block}{number of dense blocks to add to end (generally = 3)}
 
-\item{reduction:}{reduction factor of transition blocks. Note : reduction
-value is inverted to compute compression}
+\item{growth_rate}{number of filters to add per dense block}
 
-\item{dropout_rate:}{dropout rate}
+\item{nb_filter}{initial number of filters. -1 indicates initial
+number of filters is 2 * growth_rate}
 
-\item{weight_decay:}{weight decay}
-
-\item{nb_layers_per_block:}{number of layers in each dense block.
+\item{nb_layers_per_block}{number of layers in each dense block.
 Can be a positive integer or a list.
 If positive integer, a set number of layers per dense block.
 If list, nb_layer is used as provided. Note that list size must
 be (nb_dense_block + 1)}
 
-\item{nb_upsampling_conv:}{number of convolutional layers in upsampling via
-subpixel convolution}
+\item{bottleneck}{flag to add bottleneck blocks in between dense blocks}
 
-\item{upsampling_type:}{Can be one of 'upsampling', 'deconv' and 'subpixel'.
-Defines type of upsampling algorithm used.}
+\item{reduction}{reduction factor of transition blocks. Note : reduction
+value is inverted to compute compression}
 
-\item{input_shape:}{Only used for shape inference in fully convolutional
-networks.}
+\item{dropout_rate}{dropout rate}
 
-\item{activation:}{Type of activation at the top layer. Can be one of
+\item{weight_decay}{weight decay}
+
+\item{activation}{Type of activation at the top layer. Can be one of
 'softmax' or 'sigmoid'. Note that if sigmoid is used, classes must be 1.}
 }
 \description{
 Build the DenseNet model
+}
+\seealso{
+Other internal: \code{\link{conv_block}},
+  \code{\link{dense_block}},
+  \code{\link{transition_up_block}}
 }

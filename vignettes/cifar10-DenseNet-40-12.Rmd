@@ -15,7 +15,7 @@ In this example we will train a DenseNet-40-12 to classify images from the CIFAR
 small images dataset. This stakes ~125s per epoch on a NVIDIA GEFORCE 1080 Ti
 Final accuracy on test set was 0.9351 versus 0.9300 reported on the paper.
 
-```{r}
+```{r, eval = FALSE}
 # Libraries ---------------------------------------------------------------
 library(keras)
 library(densenet)
@@ -87,12 +87,9 @@ history <- model %>% fit(
 )
 
 plot(history)
-```
 
-
-```{r}
-model <- load_model_hdf5("inst/weights/cifar10-DenseNet-40-12.hdf5")
 evaluate(model, x_test, y_test)
 ```
+
 
 

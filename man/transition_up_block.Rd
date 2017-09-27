@@ -8,15 +8,19 @@ transition_up_block(ip, nb_filters, type = "upsampling",
   weight_decay = 1e-04)
 }
 \arguments{
-\item{ip:}{keras tensor}
+\item{ip}{keras tensor}
 
-\item{nb_filters:}{number of layers}
+\item{nb_filters}{number of layers}
 
-\item{type:}{can be 'upsampling', 'subpixel', 'deconv'. Determines type of
+\item{type}{can be 'upsampling', 'subpixel', 'deconv'. Determines type of
 upsampling performed}
 
-\item{weight_decay:}{weight decay factor}
+\item{weight_decay}{weight decay factor}
 }
 \description{
 SubpixelConvolutional Upscaling (factor = 2)
+}
+\seealso{
+Other internal: \code{\link{conv_block}},
+  \code{\link{create_dense_net}}, \code{\link{dense_block}}
 }

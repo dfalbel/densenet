@@ -2,25 +2,24 @@
 % Please edit documentation in R/densenet.R
 \name{transition_block}
 \alias{transition_block}
-\title{Apply BatchNorm, Relu 1x1, Conv2D, optional compression, dropout and
-Maxpooling2D}
+\title{Apply BatchNorm, ...}
 \usage{
 transition_block(ip, nb_filter, compression = 1, dropout_rate = NULL,
   weight_decay = 1e-04)
 }
 \arguments{
-\item{ip:}{Input keras tensor}
+\item{ip}{Input keras tensor}
 
-\item{nb_filter:}{number of filters}
+\item{nb_filter}{number of filters}
 
-\item{compression:}{calculated as 1 - reduction. Reduces the number of
+\item{compression}{calculated as 1 - reduction. Reduces the number of
 feature maps in the transition block.}
 
-\item{dropout_rate:}{dropout rate}
+\item{dropout_rate}{dropout rate}
 
-\item{weight_decay:}{weight decay factor}
+\item{weight_decay}{weight decay factor}
 }
 \description{
-Apply BatchNorm, Relu 1x1, Conv2D, optional compression, dropout and
+... Relu 1x1, Conv2D, optional compression, dropout and
 Maxpooling2D
 }

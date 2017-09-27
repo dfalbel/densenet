@@ -2,25 +2,30 @@
 % Please edit documentation in R/densenet.R
 \name{conv_block}
 \alias{conv_block}
-\title{Apply BatchNorm, Relu, 3x3 Conv2D, optional bottleneck block and dropout}
+\title{Apply BatchNorm, ...}
 \usage{
 conv_block(ip, nb_filter, bottleneck = FALSE, dropout_rate = NULL,
   weight_decay = 1e-04)
 }
 \arguments{
-\item{ip:}{Input keras tensor}
+\item{ip}{Input keras tensor}
 
-\item{nb_filter:}{number of filters}
+\item{nb_filter}{number of filters}
 
-\item{bottleneck:}{add bottleneck block}
+\item{bottleneck}{add bottleneck block}
 
-\item{dropout_rate:}{dropout rate}
+\item{dropout_rate}{dropout rate}
 
-\item{weight_decay:}{weight decay factor}
+\item{weight_decay}{weight decay factor}
 }
 \description{
-Apply BatchNorm, Relu, 3x3 Conv2D, optional bottleneck block and dropout
+... Relu, 3x3 Conv2D, optional bottleneck block and dropout
 }
 \references{
 https://github.com/titu1994/DenseNet/blob/master/densenet.py
+}
+\seealso{
+Other internal: \code{\link{create_dense_net}},
+  \code{\link{dense_block}},
+  \code{\link{transition_up_block}}
 }

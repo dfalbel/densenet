@@ -11,7 +11,8 @@ Description: Provides Densely Connected Convolutional Networks implementations
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: keras
+Imports: keras,
+    magrittr
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
