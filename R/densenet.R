@@ -57,14 +57,14 @@ application_densenet <- function(input_shape = NULL, depth = 40,
                                  activation = "softmax"){
 
 
-  # Determine proper input shape
-  input_shape <- obtain_input_shape()(
-    input_shape, default_size = 32, min_size = 8,
-    data_format = keras::backend()$image_data_format(),
-    include_top = include_top
-  )
-
   if (is.null(input_tensor)) {
+
+    # Determine proper input shape
+    input_shape <- obtain_input_shape()(
+      input_shape, default_size = 32, min_size = 8,
+      data_format = keras::backend()$image_data_format()
+    )
+
 
     img_input <- keras::layer_input(shape = input_shape)
 
