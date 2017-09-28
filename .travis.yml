@@ -6,8 +6,6 @@ sudo: false
 
 env:
   - KERAS_BACKEND="tensorflow"
-  - KERAS_BACKEND="theano" THEANO_FLAGS=optimizer=fast_compile
-  - KERAS_IMPLEMENTATION="tensorflow"
 
 cache:
   packages: true
