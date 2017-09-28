@@ -2,6 +2,7 @@ context("works for a simple model")
 
 
 test_that("simple model", {
+  skip_on_cran()
 
   # Libraries ---------------------------------------------------------------
   library(keras)
