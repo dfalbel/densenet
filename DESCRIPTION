@@ -1,7 +1,7 @@
 Package: densenet
 Type: Package
 Title: Densely Connected Convolutional Networks in Keras
-Version: 0.0.1.9000
+Version: 0.0.2
 Authors@R: c(
   person("Daniel", "Falbel", email = "dfalbel@gmail.com", role = c("cre", "aut")),
   person("Somshubra", "Majumdar", email = "titu1994@gmail.com", role = "aut", 
