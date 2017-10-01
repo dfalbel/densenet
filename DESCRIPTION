@@ -7,7 +7,9 @@ Authors@R: c(
   person("Somshubra", "Majumdar", email = "titu1994@gmail.com", role = "aut", 
   comment = "Original Python Implementation https://github.com/titu1994/DenseNet"))
 Description: Provides Densely Connected Convolutional Networks implementations
-  to be used for prediction, feature extraction and fine-tuning.
+  to be used for prediction, feature extraction and fine-tuning. This method was
+  introduced in the paper "Densely Connected Convolutional Networks" (CVPR 2017, Best Paper Award) 
+  by Gao Huang, Zhuang Liu, Laurens van der Maaten and Kilian Weinberger.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
