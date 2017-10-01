@@ -20,7 +20,7 @@ devtools::install_github("dfalbel/densenet")
 ## Example
 
 You can use `densenet` the same way you would use an [*application*](https://rstudio.github.io/keras/reference/index.html#section-applications) 
-function from [`keras`](https://github.com/rstudio/keras) (eg. [`application_vgg16`](https://rstudio.github.io/keras/reference/application_vgg.html))
+function from [`keras`](https://tensorflow.rstudio.com/keras/reference/#section-applications) (eg. [`application_vgg16`](https://tensorflow.rstudio.com/keras/reference/application_vgg.html))
 
 The following lines show how you would define DenseNet-40-12 to classify images for the cifar10 dataset.
 
