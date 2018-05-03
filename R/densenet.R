@@ -62,7 +62,7 @@ application_densenet <- function(input_shape = NULL, depth = 40,
     # Determine proper input shape
     input_shape <- obtain_input_shape()(
       input_shape, default_size = 32, min_size = 8,
-      data_format = keras::backend()$image_data_format()
+      data_format = keras::k_image_data_format()
     )
 
 
@@ -70,7 +70,7 @@ application_densenet <- function(input_shape = NULL, depth = 40,
 
   } else {
 
-    if (!keras::backend()$is_keras_tensor(input_tensor)) {
+    if (!keras::k_is_keras_tensor(input_tensor)) {
 
       img_input <- keras::layer_input(tensor = input_tensor,
                                       shape = input_shape)
@@ -84,19 +84,19 @@ application_densenet <- function(input_shape = NULL, depth = 40,
   }
 
   x <- create_dense_net(
-    classes,
-    img_input,
-    include_top,
-    depth,
-    nb_dense_block,
-    growth_rate,
-    nb_filter,
-    nb_layers_per_block,
-    bottleneck,
-    reduction,
-    dropout_rate,
-    weight_decay,
-    activation
+    nb_classes = classes,
+    img_input = img_input,
+    include_top = include_top,
+    depth = depth,
+    nb_dense_block = nb_dense_block,
+    growth_rate = growth_rate,
+    nb_filter = nb_filter,
+    nb_layers_per_block = nb_layers_per_block,
+    bottleneck = bottleneck,
+    reduction = reduction,
+    dropout_rate = dropout_rate,
+    weight_decay = weight_decay,
+    activation = activation
   )
 
   # Ensure that the model takes into account
@@ -147,7 +147,7 @@ conv_block <- function(ip, nb_filter,
                        weight_decay = 1e-4) {
 
 
-  if (keras::backend()$image_data_format() == "channels_first"){
+  if (keras::k_image_data_format() == "channels_first"){
     concat_axis <- 1
   } else {
     concat_axis <- -1
@@ -226,7 +226,7 @@ transition_block <- function(ip, nb_filter,
                              dropout_rate = NULL,
                              weight_decay = 1e-4) {
 
-  if (keras::backend()$image_data_format() == "channels_first") {
+  if (keras::k_image_data_format() == "channels_first") {
     concat_axis <- 1
   } else {
     concat_axis <- -1
@@ -286,7 +286,7 @@ dense_block <- function(x, nb_layers, nb_filter, growth_rate,
                         grow_nb_filters = TRUE,
                         return_concat_list = FALSE) {
 
-  if (keras::backend()$image_data_format() == "channels_first") {
+  if (keras::k_image_data_format() == "channels_first") {
     concat_axis <- 1
   } else {
     concat_axis <- -1
@@ -390,7 +390,7 @@ create_dense_net <- function(nb_classes, img_input, include_top, depth = 40,
                              activation = "softmax"){
 
 
-  if (keras::backend()$image_data_format() == "channels_first") {
+  if (keras::k_image_data_format() == "channels_first") {
     concat_axis <- 1
   } else {
     concat_axis <- -1
