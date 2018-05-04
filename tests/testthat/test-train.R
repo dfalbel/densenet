@@ -55,28 +55,28 @@ test_that("simple model", {
   # Model fitting -----------------------------------------------------------
 
   # callbacks for weights and learning rate
-  lr_schedule <- function(epoch) {
-
-    if(epoch <= 150) {
-      return(0.1)
-    } else if(epoch > 150 & epoch <= 225){
-      return(0.01)
-    } else {
-      return(0.001)
-    }
-
-  }
-
-  lr_reducer <- callback_learning_rate_scheduler(lr_schedule)
+  # lr_schedule <- function(epoch) {
+  #
+  #   if(epoch <= 150) {
+  #     return(0.1)
+  #   } else if(epoch > 150 & epoch <= 225){
+  #     return(0.01)
+  #   } else {
+  #     return(0.001)
+  #   }
+  #
+  # }
+  #
+  # lr_reducer <- callback_learning_rate_scheduler(lr_schedule)
 
   history <- model %>% fit(
     x_train, y_train,
     batch_size = 64,
     epochs = 1L,
     validation_data = list(x_test, y_test),
-    callbacks = list(
-      lr_reducer
-    ),
+    # callbacks = list(
+    #   lr_reducer
+    # ),
     verbose = 0
   )
 
